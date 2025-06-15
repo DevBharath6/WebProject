@@ -1,0 +1,200 @@
+/* Modern footer styles with #0d6efd color scheme and ConferenceHub logo */
+.footer {
+  background: linear-gradient(to right, #05285c, #0d6efd);
+  color: #fff;
+  padding: 60px 0 20px;
+  position: relative;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, #0d6efd, #56a5ff);
+}
+
+.footer-content {
+  padding-bottom: 30px;
+}
+
+/* Logo styling */
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.logo-icon {
+  background: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  color: #0d6efd;
+  font-size: 20px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-conference {
+  font-size: 18px;
+  font-weight: 600;
+  color: white;
+}
+
+.logo-hub {
+  font-size: 22px;
+  font-weight: 800;
+  color: #56a5ff;
+  letter-spacing: 1px;
+}
+
+.company-description {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.6;
+  margin-bottom: 25px;
+  font-size: 15px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 12px;
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  background: white;
+  color: #0d6efd;
+  transform: translateY(-3px);
+}
+
+.footer-heading {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.footer-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 30px;
+  height: 2px;
+  background: #56a5ff;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-link {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-size: 15px;
+  display: inline-block;
+}
+
+.footer-link:hover {
+  color: white;
+  transform: translateX(5px);
+}
+
+.newsletter-form input {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 8px 12px;
+}
+
+.newsletter-form input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.newsletter-form input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+}
+
+.newsletter-form button {
+  background: rgba(255, 255, 255, 0.9);
+  color: #0d6efd;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.newsletter-form button:hover {
+  background: white;
+  transform: translateY(-2px);
+}
+
+.copyright-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 20px;
+  margin-top: 10px;
+}
+
+.copyright {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Add smooth fade-in animation */
+.footer {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .footer {
+    padding: 40px 0 20px;
+  }
+  
+  .copyright-row {
+    margin-top: 20px;
+  }
+}
