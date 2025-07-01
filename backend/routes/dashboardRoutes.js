@@ -1,69 +1,146 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
+const Meeting = require('../models/Meeting');
 
-// Dummy data for now
-const dummyStats = {
-  totalVisitors: 1200,
-  totalRegistrations: 450,
-  activeUsers: 300,
-  pendingTasks: 15,
+// Get real stats from database
+const getStats = async () => {
+  try {
+    const totalRegistrations = await User.countDocuments();
+    const totalVisitors = totalRegistrations; // Using total registrations as total visitors for now
+    return {
+      totalVisitors,
+      totalRegistrations,
+      activeUsers: 0,
+      pendingTasks: 0,
+    };
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    throw error;
+  }
 };
-
-const dummyVisitorData = [
-  { name: 'Mon', visitors: 400 },
-  { name: 'Tue', visitors: 300 },
-  { name: 'Wed', visitors: 500 },
-  { name: 'Thu', visitors: 450 },
-  { name: 'Fri', visitors: 600 },
-  { name: 'Sat', visitors: 700 },
-  { name: 'Sun', visitors: 550 },
-];
-
-const dummyRegistrationData = [
-  { name: 'Conference A', value: 200 },
-  { name: 'Workshop B', value: 150 },
-  { name: 'Seminar C', value: 100 },
-];
-
-const dummyRecentActivities = [
-  { id: 1, text: 'User John Doe registered', timestamp: '2023-10-26T10:00:00Z' },
-  { id: 2, text: 'New event created: AI Summit', timestamp: '2023-10-25T14:30:00Z' },
-  { id: 3, text: 'Jane Smith updated profile', timestamp: '2023-10-24T09:15:00Z' },
-];
 
 // @route GET /api/dashboard/stats
 // @desc Get dashboard statistics
-router.get('/stats', (req, res) => {
-  console.log('Fetching dashboard stats');
-  res.json(dummyStats);
+router.get('/stats', async (req, res) => {
+  try {
+    console.log('Fetching dashboard stats');
+    const stats = await getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Error in stats route:', error);
+    res.status(500).json({ message: 'Error fetching dashboard stats' });
+  }
 });
 
 // @route GET /api/dashboard/visitors
-// @desc Get weekly visitor data
-router.get('/visitors', (req, res) => {
-  console.log('Fetching weekly visitor data');
-  res.json(dummyVisitorData);
+// @desc Get visitor data
+router.get('/visitors', async (req, res) => {
+  try {
+    console.log('Fetching weekly visitor data (based on registrations)');
+    const weeklyRegistrations = await User.aggregate([
+      {
+        $group: {
+          _id: { $week: '$createdAt' },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { '_id': 1 } },
+      {
+        $project: {
+          name: { $concat: ['Week ', { $toString: '$_id' }] },
+          visitors: '$count',
+          _id: 0,
+        },
+      },
+    ]);
+
+    if (weeklyRegistrations.length === 0) {
+      return res.json([]);
+    }
+
+    res.json(weeklyRegistrations);
+  } catch (error) {
+    console.error('Error fetching weekly visitor data:', error);
+    res.status(500).json({ message: 'Error fetching weekly visitor data' });
+  }
 });
 
 // @route GET /api/dashboard/registrations
-// @desc Get registration types data
-router.get('/registrations', (req, res) => {
-  console.log('Fetching registration types data');
-  res.json(dummyRegistrationData);
+// @desc Get registration data
+router.get('/registrations', async (req, res) => {
+  try {
+    console.log('Fetching registration data');
+    const registrationCounts = await Meeting.aggregate([
+      { $group: { _id: '$type', value: { $sum: 1 } } },
+      { $project: { name: '$_id', value: 1, _id: 0 } },
+    ]);
+    res.json(registrationCounts);
+  } catch (error) {
+    console.error('Error fetching registration data:', error);
+    res.status(500).json({ message: 'Error fetching registration data' });
+  }
 });
 
-// @route GET /api/dashboard/recent-activities
+// @route GET /api/dashboard/activities
 // @desc Get recent activities
-router.get('/recent-activities', (req, res) => {
-  console.log('Fetching recent activities');
-  res.json(dummyRecentActivities);
+router.get('/activities', async (req, res) => {
+  try {
+    console.log('Fetching recent activities (meetings and registrations)');
+
+    const recentMeetings = await Meeting.find()
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .select('title createdAt');
+
+    const recentUsers = await User.find()
+      .sort({ registeredAt: -1 })
+      .limit(5)
+      .select('username registeredAt');
+
+    const activities = [];
+
+    recentMeetings.forEach((meeting) => {
+      activities.push({
+        id: meeting._id,
+        action: `New meeting scheduled: ${meeting.title}`,
+        user: 'System/Admin',
+        time: meeting.createdAt.toLocaleString(),
+      });
+    });
+
+    recentUsers.forEach((user) => {
+      activities.push({
+        id: user._id,
+        action: `New user registered: ${user.username}`,
+        user: user.username,
+        time: user.registeredAt.toLocaleString(),
+      });
+    });
+
+    activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+
+    res.json(activities.slice(0, 10));
+  } catch (error) {
+    console.error('Error fetching recent activities:', error);
+    res.status(500).json({ message: 'Error fetching recent activities' });
+  }
 });
 
-// Placeholder for registration types data (if needed separately from general registrations)
-// For now, it will return the same as registrations for simplicity
-router.get('/registration-types', (req, res) => {
-  console.log('Fetching registration types data');
-  res.json(dummyRegistrationData);
+// @route GET /api/dashboard/registration-types
+// @desc Get registration types data
+router.get('/registration-types', async (req, res) => {
+  try {
+    console.log('Fetching registration types');
+    const registrationTypeCounts = await Meeting.aggregate([
+      { $group: { _id: '$type', value: { $sum: 1 } } },
+      { $project: { name: '$_id', value: 1, _id: 0 } },
+    ]);
+    res.json(registrationTypeCounts);
+  } catch (error) {
+    console.error('Error fetching registration types:', error);
+    res.status(500).json({ message: 'Error fetching registration types' });
+  }
 });
 
-module.exports = router; 
+module.exports = router;

@@ -1,27 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { Nav, NavDropdown } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from "../services/api";
+import { useAuth } from '../context/AuthContext.js';
 
 const Navbar = () => {
   const [items, setItems] = useState([]);
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     api.get("/navbar")
       .then(res => {
         const visibleItems = res.data.filter(item => item.visible);
         visibleItems.forEach(item => {
-          item.children = item.children?.filter(child => child.visible);
+          item.children = item.children?.filter(child => child.visible) || [];
         });
         setItems(visibleItems);
       })
       .catch(err => console.error("Failed to fetch navbar:", err));
   }, []);
 
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <Nav className="ms-auto align-items-center">
       {items.map((item, idx) => (
-        item.children && item.children.length > 0 ? (
+        Array.isArray(item.children) && item.children.length > 0 ? (
           <NavDropdown 
             key={idx} 
             title={
@@ -58,13 +66,37 @@ const Navbar = () => {
           </Nav.Link>
         )
       ))}
-      <Nav.Link 
-        as={Link} 
-        to="/contact"
-        className="btn btn-primary ms-3 px-4 py-2 rounded-pill"
-      >
-        Get Started
-      </Nav.Link>
+
+      {isAuthenticated ? (
+        <NavDropdown 
+          title="Profile" 
+          id="profile-nav-dropdown"
+          className="nav-item-custom ms-3"
+        >
+          <NavDropdown.Item as={Link} to="/profile">Profile</NavDropdown.Item>
+          <NavDropdown.Item as={Link} to="/settings">Settings</NavDropdown.Item>
+          <NavDropdown.Divider />
+          <NavDropdown.Item onClick={handleLogout}>Logout</NavDropdown.Item>
+        </NavDropdown>
+      ) : (
+        <Nav.Link 
+          as={Link} 
+          to="/login"
+          className="btn btn-primary ms-3 px-4 py-2 rounded-pill"
+        >
+          Login
+        </Nav.Link>
+      )}
+
+      {!isAuthenticated && (
+        <Nav.Link 
+          as={Link} 
+          to="/register"
+          className="btn btn-outline-primary ms-2 px-4 py-2 rounded-pill"
+        >
+          Get Started
+        </Nav.Link>
+      )}
     </Nav>
   );
 };

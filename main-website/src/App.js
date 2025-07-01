@@ -10,6 +10,7 @@ import Contact from './pages/Contact';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import Schedules from './pages/Schedules';
 import MainLayout from './layouts/MainLayout';
 
 // Protected Route Component
@@ -33,11 +34,13 @@ function App() {
           <Routes>
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Home />} />
+              <Route path="home" element={<Home />} />
               <Route path="about" element={<About />} />
               <Route path="services" element={<Services />} />
               <Route path="contact" element={<Contact />} />
               <Route path="register" element={<Register />} />
               <Route path="login" element={<Login />} />
+              <Route path="schedule" element={<Schedules />} />
               <Route 
                 path="profile" 
                 element={

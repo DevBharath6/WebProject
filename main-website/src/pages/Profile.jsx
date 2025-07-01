@@ -26,7 +26,7 @@ const Profile = () => {
 
     const fetchUserData = async () => {
       try {
-        const response = await api.get('/user/profile');
+        const response = await api.get('/auth/me');
         setUserData(response.data);
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -118,4 +118,4 @@ const Profile = () => {
   );
 };
 
-export default Profile; 
+export default Profile;

@@ -34,7 +34,7 @@ const Login = () => {
       setSuccess('Login successful! Redirecting...');
       console.log('Login successful:', response.data);
       setTimeout(() => {
-        navigate('/'); 
+        navigate('/profile'); 
       }, 1000);
     } catch (err) {
       console.error('Login error:', err.response?.data || err.message);
@@ -101,4 +101,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

@@ -1,17 +1,30 @@
-import React from 'react';
-import { Container, Row, Col, Card, Button, Carousel } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { FaRocket, FaChartLine, FaUsers, FaCog, FaCalendarCheck, FaArrowRight } from 'react-icons/fa';
-import Announcements from './Announcements';
-import './Home.css'; // We'll create this CSS file for custom styling
+import {
+  FaRocket, FaChartLine, FaUsers, FaCog,
+  FaCalendarCheck, FaArrowRight
+} from 'react-icons/fa';
+import Announcements from '../components/announcements';
+import CarouselDisplay from '../components/CarouselDisplay';
+import './Home.css';
+import api from '../services/api';
 
 const Home = () => {
-  const announcements = [
-    "🎤 Keynote Speaker Announced: Dr. Jane Doe!",
-    "📅 Early Bird Registration Ends June 30th!",
-    "🤝 Networking Event added on Day 2 - Don't miss out!",
-  ];
-  
+  const [announcements, setAnnouncements] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await api.get("/announcements");
+        setAnnouncements(res.data.map((a) => a.message));
+      } catch (err) {
+        console.error("Failed to fetch announcements", err);
+      }
+    };
+    fetchData();
+  }, []);
+
   const testimonials = [
     {
       name: "Sarah Johnson",
@@ -37,7 +50,7 @@ const Home = () => {
     <div className="home-page">
       {/* Announcements Banner */}
       <Announcements messages={announcements} />
-      
+
       {/* Hero Section */}
       <section className="hero-section py-5">
         <Container>
@@ -69,69 +82,9 @@ const Home = () => {
         </Container>
       </section>
 
-      {/* Ad-Style Carousel Section */}
-      <section className="ad-carousel-section py-4">
-        <Container>
-          <Row className="justify-content-center">
-            <Col lg={10}>
-              <div className="ad-carousel-container">
-                <Carousel 
-                  indicators={false} 
-                  interval={2500} 
-                  pause="hover" 
-                  controls={false}
-                  fade
-                  className="ad-carousel"
-                >
-                  <Carousel.Item>
-                    <div className="ad-item">
-                      <img
-                        className="ad-image"
-                        src="https://images.unsplash.com/photo-1581090700227-1e8b1f5d7041?auto=format&fit=crop&w=800&q=80"
-                        alt="Keynote Speaker"
-                      />
-                      <div className="ad-content">
-                        <h5>World-Class Keynote Speakers</h5>
-                        <p>Learn from the industry's brightest minds</p>
-                        <Button variant="primary" size="sm" as={Link} to="/speakers">Learn More</Button>
-                      </div>
-                    </div>
-                  </Carousel.Item>
-                  <Carousel.Item>
-                    <div className="ad-item">
-                      <img
-                        className="ad-image"
-                        src="https://images.unsplash.com/photo-1587614382346-4ecf3a5df3c4?auto=format&fit=crop&w=800&q=80"
-                        alt="Workshops"
-                      />
-                      <div className="ad-content">
-                        <h5>Interactive Workshops</h5>
-                        <p>Gain practical skills through hands-on sessions</p>
-                        <Button variant="primary" size="sm" as={Link} to="/workshops">View Workshops</Button>
-                      </div>
-                    </div>
-                  </Carousel.Item>
-                  <Carousel.Item>
-                    <div className="ad-item">
-                      <img
-                        className="ad-image"
-                        src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=800&q=80"
-                        alt="Networking"
-                      />
-                      <div className="ad-content">
-                        <h5>Exclusive Networking Events</h5>
-                        <p>Connect with peers and industry leaders</p>
-                        <Button variant="primary" size="sm" as={Link} to="/networking">See Events</Button>
-                      </div>
-                    </div>
-                  </Carousel.Item>
-                </Carousel>
-              </div>
-            </Col>
-          </Row>
-        </Container>
-      </section>
-      
+      {/* Dynamic Carousel Section */}
+      <CarouselDisplay />
+
       {/* Conference Highlights Section */}
       <section className="highlights-section py-5">
         <Container>
@@ -145,13 +98,9 @@ const Home = () => {
             <Col md={6} lg={3}>
               <Card className="highlight-card">
                 <Card.Body>
-                  <div className="highlight-icon">
-                    <FaRocket />
-                  </div>
+                  <div className="highlight-icon"><FaRocket /></div>
                   <Card.Title className="highlight-title">Inspirational Keynotes</Card.Title>
-                  <Card.Text>
-                    Hear from visionaries driving innovation across multiple industries.
-                  </Card.Text>
+                  <Card.Text>Hear from visionaries driving innovation across multiple industries.</Card.Text>
                   <Link to="/keynotes" className="highlight-link">Learn more <FaArrowRight /></Link>
                 </Card.Body>
               </Card>
@@ -159,13 +108,9 @@ const Home = () => {
             <Col md={6} lg={3}>
               <Card className="highlight-card">
                 <Card.Body>
-                  <div className="highlight-icon">
-                    <FaChartLine />
-                  </div>
+                  <div className="highlight-icon"><FaChartLine /></div>
                   <Card.Title className="highlight-title">Insightful Workshops</Card.Title>
-                  <Card.Text>
-                    Participate in hands-on sessions to sharpen your skills and knowledge.
-                  </Card.Text>
+                  <Card.Text>Participate in hands-on sessions to sharpen your skills and knowledge.</Card.Text>
                   <Link to="/workshops" className="highlight-link">Learn more <FaArrowRight /></Link>
                 </Card.Body>
               </Card>
@@ -173,13 +118,9 @@ const Home = () => {
             <Col md={6} lg={3}>
               <Card className="highlight-card">
                 <Card.Body>
-                  <div className="highlight-icon">
-                    <FaUsers />
-                  </div>
+                  <div className="highlight-icon"><FaUsers /></div>
                   <Card.Title className="highlight-title">Networking Opportunities</Card.Title>
-                  <Card.Text>
-                    Connect with peers, mentors, and industry experts to expand your network.
-                  </Card.Text>
+                  <Card.Text>Connect with peers, mentors, and industry experts to expand your network.</Card.Text>
                   <Link to="/networking" className="highlight-link">Learn more <FaArrowRight /></Link>
                 </Card.Body>
               </Card>
@@ -187,13 +128,9 @@ const Home = () => {
             <Col md={6} lg={3}>
               <Card className="highlight-card">
                 <Card.Body>
-                  <div className="highlight-icon">
-                    <FaCog />
-                  </div>
+                  <div className="highlight-icon"><FaCog /></div>
                   <Card.Title className="highlight-title">Exhibitor Showcase</Card.Title>
-                  <Card.Text>
-                    Explore the latest products and services from leading technology providers.
-                  </Card.Text>
+                  <Card.Text>Explore the latest products and services from leading technology providers.</Card.Text>
                   <Link to="/exhibitors" className="highlight-link">Learn more <FaArrowRight /></Link>
                 </Card.Body>
               </Card>
@@ -201,24 +138,20 @@ const Home = () => {
           </Row>
         </Container>
       </section>
-      
-      {/* Testimonials Section - New */}
+
+      {/* Testimonials */}
       <section className="testimonials-section py-5">
         <Container>
           <div className="text-center mb-5">
             <h2 className="section-title">What Past Attendees Say</h2>
-            <p className="section-subtitle">
-              Don't just take our word for it - hear from our community
-            </p>
+            <p className="section-subtitle">Don't just take our word for it - hear from our community</p>
           </div>
           <Row className="justify-content-center">
-            {testimonials.map((testimonial, index) => (
-              <Col key={index} md={4} className="mb-4">
+            {testimonials.map((testimonial, i) => (
+              <Col key={i} md={4} className="mb-4">
                 <Card className="testimonial-card">
                   <Card.Body>
-                    <div className="testimonial-content">
-                      <p>"{testimonial.content}"</p>
-                    </div>
+                    <div className="testimonial-content"><p>"{testimonial.content}"</p></div>
                     <div className="testimonial-author">
                       <img src={testimonial.image} alt={testimonial.name} className="testimonial-image" />
                       <div>
@@ -233,54 +166,33 @@ const Home = () => {
           </Row>
         </Container>
       </section>
-      
-      {/* Stats Section - New */}
+
+      {/* Stats Section */}
       <section className="stats-section py-5">
         <Container>
           <Row className="text-center">
-            <Col md={3} className="mb-4 mb-md-0">
-              <div className="stat-item">
-                <div className="stat-number">1,200+</div>
-                <div className="stat-label">Attendees</div>
-              </div>
-            </Col>
-            <Col md={3} className="mb-4 mb-md-0">
-              <div className="stat-item">
-                <div className="stat-number">50+</div>
-                <div className="stat-label">Speakers</div>
-              </div>
-            </Col>
-            <Col md={3} className="mb-4 mb-md-0">
-              <div className="stat-item">
-                <div className="stat-number">30+</div>
-                <div className="stat-label">Workshops</div>
-              </div>
-            </Col>
-            <Col md={3}>
-              <div className="stat-item">
-                <div className="stat-number">25+</div>
-                <div className="stat-label">Countries</div>
-              </div>
-            </Col>
+            <Col md={3}><div className="stat-item"><div className="stat-number">1,200+</div><div className="stat-label">Attendees</div></div></Col>
+            <Col md={3}><div className="stat-item"><div className="stat-number">50+</div><div className="stat-label">Speakers</div></div></Col>
+            <Col md={3}><div className="stat-item"><div className="stat-number">30+</div><div className="stat-label">Workshops</div></div></Col>
+            <Col md={3}><div className="stat-item"><div className="stat-number">25+</div><div className="stat-label">Countries</div></div></Col>
           </Row>
         </Container>
       </section>
 
-      {/* Calendar Section - New */}
+      {/* Calendar Section */}
       <section className="calendar-section py-5">
         <Container>
           <Row className="align-items-center">
             <Col lg={5} className="mb-4 mb-lg-0">
               <h2 className="section-title">Mark Your Calendar</h2>
               <p className="mb-4">
-                The ConferenceHub Annual Tech Conference is scheduled for September 15-17, 2023 
-                at the Grand Tech Center in San Francisco.
+                The ConferenceHub Annual Tech Conference is scheduled for September 15–17, 2023 at the Grand Tech Center in San Francisco.
               </p>
               <div className="d-flex align-items-center mb-3">
                 <FaCalendarCheck className="calendar-icon" />
                 <div>
                   <h5 className="mb-0">Conference Dates</h5>
-                  <p className="mb-0">September 15-17, 2023</p>
+                  <p className="mb-0">September 15–17, 2023</p>
                 </div>
               </div>
               <Button as={Link} to="/schedule" variant="outline-primary" className="mt-3">
@@ -289,41 +201,18 @@ const Home = () => {
             </Col>
             <Col lg={7}>
               <div className="calendar-card">
-                <div className="calendar-header">
-                  <h3>Conference Schedule Overview</h3>
-                </div>
+                <div className="calendar-header"><h3>Conference Schedule Overview</h3></div>
                 <div className="calendar-body">
-                  <div className="calendar-day">
-                    <div className="day-header">Day 1: Sept 15</div>
-                    <div className="day-content">
-                      <p>Opening Keynote</p>
-                      <p>Technology Panels</p>
-                      <p>Welcome Reception</p>
-                    </div>
-                  </div>
-                  <div className="calendar-day">
-                    <div className="day-header">Day 2: Sept 16</div>
-                    <div className="day-content">
-                      <p>Workshops & Training</p>
-                      <p>Networking Lunch</p>
-                      <p>Industry Roundtables</p>
-                    </div>
-                  </div>
-                  <div className="calendar-day">
-                    <div className="day-header">Day 3: Sept 17</div>
-                    <div className="day-content">
-                      <p>Expert Panels</p>
-                      <p>Closing Keynote</p>
-                      <p>Farewell Party</p>
-                    </div>
-                  </div>
+                  <div className="calendar-day"><div className="day-header">Day 1: Sept 15</div><div className="day-content"><p>Opening Keynote</p><p>Technology Panels</p><p>Welcome Reception</p></div></div>
+                  <div className="calendar-day"><div className="day-header">Day 2: Sept 16</div><div className="day-content"><p>Workshops & Training</p><p>Networking Lunch</p><p>Industry Roundtables</p></div></div>
+                  <div className="calendar-day"><div className="day-header">Day 3: Sept 17</div><div className="day-content"><p>Expert Panels</p><p>Closing Keynote</p><p>Farewell Party</p></div></div>
                 </div>
               </div>
             </Col>
           </Row>
         </Container>
       </section>
-      
+
       {/* CTA Section */}
       <section className="cta-section py-5">
         <Container>
@@ -331,15 +220,11 @@ const Home = () => {
             <Col lg={8}>
               <div className="cta-content">
                 <h2 className="cta-title">Ready to Elevate Your Career?</h2>
-                <p className="cta-text">
-                  Register today and join thousands of professionals shaping the future.
-                </p>
+                <p className="cta-text">Register today and join thousands of professionals shaping the future.</p>
                 <Button as={Link} to="/register" variant="primary" size="lg" className="cta-button">
                   Register Now <FaArrowRight className="ms-2" />
                 </Button>
-                <p className="cta-note mt-3">
-                  Early bird pricing ends on June 30th, 2023
-                </p>
+                <p className="cta-note mt-3">Early bird pricing ends on June 30th, 2023</p>
               </div>
             </Col>
           </Row>

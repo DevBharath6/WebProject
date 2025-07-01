@@ -1,237 +1,187 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Nav, Card, Badge, Button, Tabs, Tab } from 'react-bootstrap';
-import { FaClock, FaMapMarkerAlt, FaUser, FaCalendarAlt, FaDownload, FaFilter } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Card,
+  ListGroup,
+  Badge,
+  Tabs,
+  Tab,
+  Modal,
+  Form,
+  Alert,
+  Spinner,
+} from 'react-bootstrap';
+import {
+  FaDownload,
+  FaPlus,
+  FaFilter,
+  FaClock,
+  FaCalendarAlt,
+  FaUser,
+  FaMapMarkerAlt,
+  FaEdit,
+  FaTrash,
+} from 'react-icons/fa';
+import api from '../services/api';
 
 const Schedules = () => {
-  // State to track active track filter
+  const [meetings, setMeetings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTrack, setActiveTrack] = useState('all');
+  const [activeDay, setActiveDay] = useState('');
+  const [showMeetingModal, setShowMeetingModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [currentMeeting, setCurrentMeeting] = useState(null);
+  const [newMeetingData, setNewMeetingData] = useState({
+    title: '',
+    speaker: '',
+    description: '',
+    date: '',
+    startTime: '',
+    endTime: '',
+    location: '',
+    track: '',
+    type: 'session',
+    reminder: '',
+    capacity: '',
+  });
 
-  // Conference days
-  const days = [
-    { id: 'day1', label: 'Day 1', date: 'September 15, 2023' },
-    { id: 'day2', label: 'Day 2', date: 'September 16, 2023' },
-    { id: 'day3', label: 'Day 3', date: 'September 17, 2023' },
-  ];
-
-  // Tracks for filtering
   const tracks = [
-    { id: 'all', label: 'All Tracks', color: 'primary' },
-    { id: 'tech', label: 'Technology', color: 'info' },
-    { id: 'business', label: 'Business', color: 'success' },
-    { id: 'design', label: 'Design', color: 'warning' },
-    { id: 'data', label: 'Data Science', color: 'danger' },
+    { id: 'all', label: 'All Tracks', color: 'secondary' },
+    { id: 'keynote', label: 'Keynotes', color: 'primary' },
+    { id: 'workshop', label: 'Workshops', color: 'success' },
+    { id: 'session', label: 'Sessions', color: 'warning' },
+    { id: 'social', label: 'Social Events', color: 'info' },
   ];
 
-  // Schedule data
-  const scheduleData = {
-    day1: [
-      {
-        id: 1,
-        time: '08:00 - 09:00',
-        title: 'Registration & Breakfast',
-        location: 'Main Lobby',
-        track: null,
-        type: 'break',
-        description: 'Pick up your conference badge and enjoy a complimentary breakfast while networking with other attendees.',
-      },
-      {
-        id: 2,
-        time: '09:00 - 10:00',
-        title: 'Opening Keynote: The Future of Technology',
-        speaker: 'Dr. Jane Smith, CTO of FutureTech',
-        location: 'Grand Ballroom',
-        track: 'tech',
-        type: 'keynote',
-        description: 'An inspiring look at how emerging technologies will shape our world in the coming decade, with insights from one of the industry\'s leading visionaries.',
-      },
-      {
-        id: 3,
-        time: '10:15 - 11:15',
-        title: 'Building Scalable Cloud Solutions',
-        speaker: 'Michael Johnson, Lead Architect at CloudCorp',
-        location: 'Room 101',
-        track: 'tech',
-        type: 'session',
-        description: 'Learn best practices for designing and implementing cloud-based systems that can scale to millions of users.',
-      },
-      {
-        id: 4,
-        time: '10:15 - 11:15',
-        title: 'Design Systems for Enterprise',
-        speaker: 'Sarah Lee, UX Director',
-        location: 'Room 102',
-        track: 'design',
-        type: 'session',
-        description: 'How to create and maintain effective design systems that improve consistency and efficiency across large organizations.',
-      },
-      {
-        id: 5,
-        time: '10:15 - 11:15',
-        title: 'AI-Driven Business Insights',
-        speaker: 'Robert Chen, AI Consultant',
-        location: 'Room 103',
-        track: 'data',
-        type: 'session',
-        description: 'Practical applications of artificial intelligence for extracting actionable business intelligence from your data.',
-      },
-      {
-        id: 6,
-        time: '11:30 - 12:30',
-        title: 'Modern Frontend Frameworks',
-        speaker: 'Emily Rodriguez, Senior Developer',
-        location: 'Room 101',
-        track: 'tech',
-        type: 'session',
-        description: 'A comparison of React, Vue, and Angular with guidance on choosing the right framework for your project.',
-      },
-      {
-        id: 7,
-        time: '11:30 - 12:30',
-        title: 'Venture Capital Strategies',
-        speaker: 'David Park, Managing Partner at TechFund',
-        location: 'Room 102',
-        track: 'business',
-        type: 'session',
-        description: 'Insights into how VCs evaluate startups and what founders should know when seeking investment.',
-      },
-      {
-        id: 8,
-        time: '12:30 - 14:00',
-        title: 'Networking Lunch',
-        location: 'Garden Terrace',
-        track: null,
-        type: 'break',
-        description: 'Enjoy a delicious lunch while networking with speakers and fellow attendees.',
-      },
-      {
-        id: 9,
-        time: '14:00 - 15:00',
-        title: 'Workshop: Hands-on Machine Learning',
-        speaker: 'Dr. Alex Turner, Data Scientist',
-        location: 'Computer Lab A',
-        track: 'data',
-        type: 'workshop',
-        description: 'A practical workshop on building and training machine learning models using Python and TensorFlow.',
-        capacity: 'Limited to 30 participants',
-      },
-      {
-        id: 10,
-        time: '14:00 - 15:00',
-        title: 'Digital Transformation Success Stories',
-        speaker: 'Lisa Wong, Digital Strategy Director',
-        location: 'Room 102',
-        track: 'business',
-        type: 'session',
-        description: 'Case studies of companies that have successfully navigated digital transformation with lessons for your organization.',
-      },
-      {
-        id: 11,
-        time: '15:15 - 16:15',
-        title: 'Security Best Practices for 2023',
-        speaker: 'James Wilson, Cybersecurity Expert',
-        location: 'Room 101',
-        track: 'tech',
-        type: 'session',
-        description: 'The latest approaches to protecting your systems and data from increasingly sophisticated threats.',
-      },
-      {
-        id: 12,
-        time: '16:30 - 17:30',
-        title: 'Panel: The Future of Work',
-        speaker: 'Industry Leaders Panel',
-        location: 'Grand Ballroom',
-        track: 'business',
-        type: 'panel',
-        description: 'A diverse panel discusses how technology is reshaping workplaces and what skills will be most valuable in the coming years.',
-      },
-      {
-        id: 13,
-        time: '18:00 - 20:00',
-        title: 'Welcome Reception',
-        location: 'Skyview Lounge',
-        track: null,
-        type: 'social',
-        description: 'Join fellow attendees for drinks, hors d\'oeuvres, and conversation with a spectacular city view.',
-      },
-    ],
-    day2: [
-      {
-        id: 14,
-        time: '08:30 - 09:30',
-        title: 'Breakfast & Morning Networking',
-        location: 'Main Lobby',
-        track: null,
-        type: 'break',
-        description: 'Start your day with breakfast and casual networking opportunities.',
-      },
-      {
-        id: 15,
-        time: '09:30 - 10:30',
-        title: 'Keynote: Ethical Technology Development',
-        speaker: 'Prof. Maria Garcia, Ethics Researcher',
-        location: 'Grand Ballroom',
-        track: 'tech',
-        type: 'keynote',
-        description: 'An exploration of the ethical considerations in developing new technologies and how to build with responsibility.',
-      },
-      // Add more sessions for day 2...
-    ],
-    day3: [
-      {
-        id: 30,
-        time: '08:30 - 09:30',
-        title: 'Breakfast & Morning Networking',
-        location: 'Main Lobby',
-        track: null,
-        type: 'break',
-        description: 'Final day networking breakfast.',
-      },
-      {
-        id: 31,
-        time: '09:30 - 10:30',
-        title: 'Closing Keynote: Technology Trends 2024 and Beyond',
-        speaker: 'Thomas Wright, Industry Analyst',
-        location: 'Grand Ballroom',
-        track: 'tech',
-        type: 'keynote',
-        description: 'A forward-looking analysis of the technologies that will drive innovation in the coming years.',
-      },
-      // Add more sessions for day 3...
-    ],
-  };
+  useEffect(() => {
+    fetchMeetings();
+  }, []);
 
-  // Function to filter schedule by track
-  const getFilteredSchedule = (day) => {
-    const daySchedule = scheduleData[day] || [];
-    
-    if (activeTrack === 'all') {
-      return daySchedule;
+  const fetchMeetings = async () => {
+    try {
+      const res = await api.get('/meetings');
+      const data = res.data.map((m) => ({
+        ...m,
+        date: new Date(m.date),
+      }));
+      setMeetings(data);
+      if (data.length > 0) {
+        setActiveDay(data[0].date.toDateString());
+      }
+    } catch (err) {
+      setError('Failed to load meetings');
+    } finally {
+      setLoading(false);
     }
-    
-    return daySchedule.filter(item => 
-      item.track === activeTrack || item.track === null
-    );
   };
 
-  // Get badge style based on track
-  const getTrackBadge = (track) => {
-    if (!track) return null;
-    
-    const trackInfo = tracks.find(t => t.id === track) || tracks[0];
-    return <Badge bg={trackInfo.color} className="ms-2">{trackInfo.label}</Badge>;
+  const handleShowAddModal = () => {
+    setNewMeetingData({
+      title: '',
+      speaker: '',
+      description: '',
+      date: '',
+      startTime: '',
+      endTime: '',
+      location: '',
+      track: '',
+      type: 'session',
+      reminder: '',
+      capacity: '',
+    });
+    setIsEditMode(false);
+    setShowMeetingModal(true);
   };
 
-  // Get class based on session type
+  const handleShowEditModal = (meeting) => {
+    setCurrentMeeting(meeting);
+    setNewMeetingData({
+      ...meeting,
+      date: new Date(meeting.date).toISOString().split('T')[0],
+    });
+    setIsEditMode(true);
+    setShowMeetingModal(true);
+  };
+
+  const handleCloseMeetingModal = () => {
+    setShowMeetingModal(false);
+  };
+
+  const handleMeetingFormChange = (e) => {
+    const { name, value } = e.target;
+    setNewMeetingData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSaveMeeting = async () => {
+    setLoading(true);
+    try {
+      let response;
+      if (isEditMode) {
+        response = await api.put(`/meetings/${currentMeeting._id}`, newMeetingData);
+        setMeetings((prevMeetings) =>
+          prevMeetings.map((m) =>
+            m._id === currentMeeting._id
+              ? { ...newMeetingData, _id: m._id, date: new Date(newMeetingData.date) }
+              : m
+          )
+        );
+      } else {
+        response = await api.post('/meetings', newMeetingData);
+        setMeetings((prev) => [...prev, { ...response.data, date: new Date(response.data.date) }]);
+      }
+      setShowMeetingModal(false);
+    } catch (err) {
+      setError('Failed to save meeting');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteMeeting = async (id) => {
+    try {
+      await api.delete(`/meetings/${id}`);
+      setMeetings((prev) => prev.filter((m) => m._id !== id));
+    } catch (err) {
+      setError('Failed to delete meeting');
+    }
+  };
+
   const getSessionClass = (type) => {
-    switch(type) {
+    switch (type) {
       case 'keynote': return 'border-primary';
-      case 'workshop': return 'border-info';
-      case 'break': return 'border-secondary bg-light';
-      case 'social': return 'border-success';
-      case 'panel': return 'border-warning';
+      case 'workshop': return 'border-success';
+      case 'session': return 'border-warning';
+      case 'social': return 'border-info';
+      case 'break': return 'border-secondary';
       default: return 'border-dark';
     }
   };
+
+  const getTrackBadge = (track) => {
+    const match = tracks.find((t) => t.id === track);
+    if (match) {
+      return <Badge bg={match.color} className="ms-2">{match.label}</Badge>;
+    }
+    return null;
+  };
+
+  const getFilteredSchedule = () => {
+    return meetings.filter((m) => {
+      const matchDay = m.date.toDateString() === activeDay;
+      const matchTrack = activeTrack === 'all' || m.track === activeTrack;
+      return matchDay && matchTrack;
+    });
+  };
+
+  const meetingDates = [...new Set(meetings.map((m) => m.date.toDateString()))];
 
   return (
     <div>
@@ -247,128 +197,284 @@ const Schedules = () => {
               <Button variant="outline-light" className="d-inline-flex align-items-center gap-2 mt-2">
                 <FaDownload /> Download PDF Schedule
               </Button>
+              <Button variant="success" className="d-inline-flex align-items-center gap-2 mt-2 ms-3" onClick={handleShowAddModal}>
+                <FaPlus /> Add New Meeting
+              </Button>
             </Col>
-            <Col lg={5}>
-              <Card className="bg-white bg-opacity-10 text-white border-0">
-                <Card.Body>
-                  <Row className="g-3">
-                    <Col sm={12}>
-                      <div className="d-flex align-items-center">
-                        <FaCalendarAlt className="me-3 fs-4" />
-                        <div>
-                          <h5 className="mb-0">Dates</h5>
-                          <p className="mb-0">September 15-17, 2023</p>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col sm={12}>
-                      <div className="d-flex align-items-center">
-                        <FaMapMarkerAlt className="me-3 fs-4" />
-                        <div>
-                          <h5 className="mb-0">Location</h5>
-                          <p className="mb-0">Grand Tech Center, San Francisco</p>
-                        </div>
-                      </div>
-                    </Col>
-                    <Col sm={12}>
-                      <div className="d-flex align-items-center">
-                        <FaClock className="me-3 fs-4" />
-                        <div>
-                          <h5 className="mb-0">Daily Hours</h5>
-                          <p className="mb-0">8:00 AM - 8:00 PM</p>
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                </Card.Body>
-              </Card>
+            <Col lg={5} className="text-lg-end">
+              <img
+                src="https://placehold.co/250x250?text=Schedule"
+                alt="Schedule Icon"
+                className="img-fluid rounded-circle"
+              />
             </Col>
           </Row>
         </Container>
       </div>
 
-      <Container className="py-5">
-        {/* Track Filter */}
-        <Card className="mb-4 shadow-sm">
-          <Card.Body>
-            <div className="d-flex align-items-center mb-3">
-              <FaFilter className="me-2 text-primary" />
-              <h5 className="mb-0">Filter by Track:</h5>
-            </div>
-            <div className="d-flex flex-wrap gap-2">
-              {tracks.map(track => (
-                <Button
-                  key={track.id}
-                  variant={activeTrack === track.id ? track.color : 'outline-secondary'}
-                  className="rounded-pill"
-                  onClick={() => setActiveTrack(track.id)}
-                >
-                  {track.label}
-                </Button>
-              ))}
-            </div>
-          </Card.Body>
-        </Card>
+      {/* Schedule Content */}
+      <Container className="mt-5 mb-5">
+        {error && <Alert variant="danger">{error}</Alert>}
+        {loading ? (
+          <div className="text-center">
+            <Spinner animation="border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            <p>Loading schedule...</p>
+          </div>
+        ) : (
+          <Row>
+            <Col lg={3} className="mb-4">
+              <Card className="shadow-sm">
+                <Card.Header className="bg-light fw-bold">
+                  <FaFilter className="me-2" /> Filter by Track
+                </Card.Header>
+                <ListGroup variant="flush">
+                  {tracks.map((track) => (
+                    <ListGroup.Item
+                      key={track.id}
+                      action
+                      onClick={() => setActiveTrack(track.id)}
+                      active={activeTrack === track.id}
+                      className="d-flex justify-content-between align-items-center"
+                    >
+                      {track.label}
+                      {track.id !== 'all' && (
+                        <Badge bg={track.color} className="ms-2">
+                          {meetings.filter(m => m.track === track.id && m.date.toDateString() === activeDay).length}
+                        </Badge>
+                      )}
+                    </ListGroup.Item>
+                  ))}
+                </ListGroup>
+              </Card>
+            </Col>
 
-        {/* Schedule Tabs */}
-        <Tabs defaultActiveKey="day1" id="schedule-tabs" className="mb-4">
-          {days.map(day => (
-            <Tab 
-              key={day.id} 
-              eventKey={day.id} 
-              title={
-                <div className="text-center">
-                  <div className="fw-bold">{day.label}</div>
-                  <small>{day.date}</small>
-                </div>
-              }
-            >
-              <div className="py-3">
-                {getFilteredSchedule(day.id).map((session) => (
-                  <Card 
-                    key={session.id}
-                    className={`mb-3 shadow-sm border-start ${getSessionClass(session.type)} border-start-4`}
+            <Col lg={9}>
+              <Tabs
+                id="schedule-tabs"
+                activeKey={activeDay}
+                onSelect={(k) => setActiveDay(k)}
+                className="mb-4"
+                justify
+              >
+                {meetingDates.map((dateString) => (
+                  <Tab
+                    key={dateString}
+                    eventKey={dateString}
+                    title={new Date(dateString).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                   >
-                    <Card.Body>
-                      <Row>
-                        <Col md={3} className="mb-3 mb-md-0">
-                          <div className="d-flex align-items-center mb-2">
-                            <FaClock className="text-secondary me-2" />
-                            <span className="fw-bold">{session.time}</span>
-                            {session.track && getTrackBadge(session.track)}
-                          </div>
-                          <div className="d-flex align-items-center text-muted">
-                            <FaMapMarkerAlt className="me-2" />
-                            <small>{session.location}</small>
-                          </div>
+                    <Row>
+                      {getFilteredSchedule().length > 0 ? (
+                        getFilteredSchedule().map((session) => (
+                          <Col md={12} key={session._id} className="mb-4">
+                            <Card className={`shadow-sm border-start border-5 ${getSessionClass(session.type)}`}>
+                              <Card.Body>
+                                <Row className="align-items-center">
+                                  <Col md={3} className="text-center">
+                                    <p className="fw-bold mb-1">
+                                      <FaClock className="me-1" />{session.startTime} - {session.endTime}
+                                    </p>
+                                    {session.reminder && (
+                                      <small className="text-muted mt-1 d-block">
+                                        <FaCalendarAlt className="me-1" />Reminder: {new Date(session.reminder).toLocaleString()}
+                                      </small>
+                                    )}
+                                  </Col>
+                                  <Col md={9}>
+                                    <h5 className="fw-bold">
+                                      {session.title}
+                                      {getTrackBadge(session.track)}
+                                    </h5>
+                                    {session.speaker && (
+                                      <p className="text-muted mb-0"><FaUser className="me-1" />{session.speaker}</p>
+                                    )}
+                                    {session.location && (
+                                      <p className="text-muted mb-0"><FaMapMarkerAlt className="me-1" />{session.location}</p>
+                                    )}
+                                    {session.capacity && (
+                                      <p className="text-muted mb-0">Capacity: {session.capacity}</p>
+                                    )}
+                                    <p className="mt-2">{session.description}</p>
+                                    <div className="mt-3">
+                                      <Button variant="outline-primary" size="sm" className="me-2" onClick={() => handleShowEditModal(session)}>
+                                        <FaEdit /> Edit
+                                      </Button>
+                                      <Button variant="outline-danger" size="sm" onClick={() => handleDeleteMeeting(session._id)}>
+                                        <FaTrash /> Delete
+                                      </Button>
+                                    </div>
+                                  </Col>
+                                </Row>
+                              </Card.Body>
+                            </Card>
+                          </Col>
+                        ))
+                      ) : (
+                        <Col>
+                          <Alert variant="info" className="text-center">
+                            No meetings scheduled for this day or track.
+                          </Alert>
                         </Col>
-                        <Col md={9}>
-                          <h5>{session.title}</h5>
-                          {session.speaker && (
-                            <div className="d-flex align-items-center mb-2 text-muted">
-                              <FaUser className="me-2" />
-                              <span>{session.speaker}</span>
-                            </div>
-                          )}
-                          <p className="mb-2">{session.description}</p>
-                          {session.capacity && (
-                            <Badge bg="secondary" className="me-2">{session.capacity}</Badge>
-                          )}
-                          {session.type === 'workshop' && (
-                            <Button size="sm" variant="outline-primary" className="mt-2">
-                              Register for Workshop
-                            </Button>
-                          )}
-                        </Col>
-                      </Row>
-                    </Card.Body>
-                  </Card>
+                      )}
+                    </Row>
+                  </Tab>
                 ))}
-              </div>
-            </Tab>
-          ))}
-        </Tabs>
+              </Tabs>
+            </Col>
+          </Row>
+        )}
       </Container>
+
+      {/* Add/Edit Meeting Modal */}
+      <Modal show={showMeetingModal} onHide={handleCloseMeetingModal} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{isEditMode ? 'Edit Meeting' : 'Add New Meeting'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="formMeetingTitle">
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="title"
+                  value={newMeetingData.title}
+                  onChange={handleMeetingFormChange}
+                  required
+                />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formMeetingSpeaker">
+                <Form.Label>Speaker</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="speaker"
+                  value={newMeetingData.speaker}
+                  onChange={handleMeetingFormChange}
+                  placeholder="Optional"
+                />
+              </Form.Group>
+            </Row>
+
+            <Form.Group className="mb-3" controlId="formMeetingDescription">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="description"
+                value={newMeetingData.description}
+                onChange={handleMeetingFormChange}
+              />
+            </Form.Group>
+
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="formMeetingDate">
+                <Form.Label>Date</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="date"
+                  value={newMeetingData.date}
+                  onChange={handleMeetingFormChange}
+                  required
+                />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formMeetingStartTime">
+                <Form.Label>Start Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  name="startTime"
+                  value={newMeetingData.startTime}
+                  onChange={handleMeetingFormChange}
+                  required
+                />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formMeetingEndTime">
+                <Form.Label>End Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  name="endTime"
+                  value={newMeetingData.endTime}
+                  onChange={handleMeetingFormChange}
+                  required
+                />
+              </Form.Group>
+            </Row>
+
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="formMeetingLocation">
+                <Form.Label>Location</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="location"
+                  value={newMeetingData.location}
+                  onChange={handleMeetingFormChange}
+                />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formMeetingTrack">
+                <Form.Label>Track</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="track"
+                  value={newMeetingData.track}
+                  onChange={handleMeetingFormChange}
+                >
+                  {tracks.filter(t => t.id !== 'all').map(track => (
+                    <option key={track.id} value={track.id}>
+                      {track.label}
+                    </option>
+                  ))}
+                  <option value="">No Specific Track</option>
+                </Form.Control>
+              </Form.Group>
+              <Form.Group as={Col} controlId="formMeetingType">
+                <Form.Label>Type</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="type"
+                  value={newMeetingData.type}
+                  onChange={handleMeetingFormChange}
+                >
+                  <option value="session">Session</option>
+                  <option value="keynote">Keynote</option>
+                  <option value="workshop">Workshop</option>
+                  <option value="break">Break</option>
+                  <option value="social">Social</option>
+                  <option value="panel">Panel</option>
+                </Form.Control>
+              </Form.Group>
+            </Row>
+
+            <Row className="mb-3">
+              <Form.Group as={Col} controlId="formMeetingReminder">
+                <Form.Label>Reminder Date/Time (Optional)</Form.Label>
+                <Form.Control
+                  type="datetime-local"
+                  name="reminder"
+                  value={newMeetingData.reminder}
+                  onChange={handleMeetingFormChange}
+                />
+              </Form.Group>
+              <Form.Group as={Col} controlId="formMeetingCapacity">
+                <Form.Label>Capacity (Optional)</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="capacity"
+                  value={newMeetingData.capacity}
+                  onChange={handleMeetingFormChange}
+                />
+              </Form.Group>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseMeetingModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSaveMeeting} disabled={loading}>
+            {loading ? 'Saving...' : (isEditMode ? 'Update Meeting' : 'Add Meeting')}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

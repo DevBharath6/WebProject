@@ -35,11 +35,14 @@ const FooterManager = () => {
   const [success, setSuccess] = useState(null);
   const [footerData, setFooterData] = useState({
     companyInfo: {
-      name: '',
-      description: '',
-      address: '',
-      email: '',
-      phone: '',
+      logoText: 'Conference Hub',
+      description: 'Making conferences accessible to everyone.',
+    },
+    socialLinks: {
+      facebook: '',
+      twitter: '',
+      linkedin: '',
+      instagram: '',
     },
     sections: [],
     visible: true,
@@ -60,11 +63,14 @@ const FooterManager = () => {
       const response = await api.get('/footer');
       setFooterData(response.data || {
         companyInfo: {
-          name: '',
-          description: '',
-          address: '',
-          email: '',
-          phone: '',
+          logoText: 'Conference Hub',
+          description: 'Making conferences accessible to everyone.',
+        },
+        socialLinks: {
+          facebook: '',
+          twitter: '',
+          linkedin: '',
+          instagram: '',
         },
         sections: [],
         visible: true,
@@ -106,6 +112,31 @@ const FooterManager = () => {
     }
   };
 
+  const handleSocialLinksChange = (platform, value) => {
+    setFooterData((prev) => ({
+      ...prev,
+      socialLinks: {
+        ...prev.socialLinks,
+        [platform]: value,
+      },
+    }));
+  };
+
+  const handleSaveSocialLinks = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await api.put('/footer/social-links', footerData.socialLinks);
+      setSuccess('Social links updated successfully!');
+      setTimeout(() => setSuccess(null), 3000);
+    } catch (err) {
+      setError('Failed to update social links. Please try again.');
+      console.error('Update social links error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAddSection = async () => {
     try {
       setLoading(true);
@@ -113,6 +144,8 @@ const FooterManager = () => {
       const response = await api.post('/footer/sections', {
         title: 'New Section',
         links: [],
+        order: footerData.sections.length,
+        visible: true,
       });
       setFooterData((prev) => ({
         ...prev,
@@ -292,40 +325,14 @@ const FooterManager = () => {
           Company Information
         </Typography>
         <Grid container spacing={2}>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12}>
             <TextField
               fullWidth
-              label="Company Name"
-              value={footerData.companyInfo.name}
-              onChange={(e) => handleCompanyInfoChange('name', e.target.value)}
+              label="Logo Text"
+              value={footerData.companyInfo.logoText}
+              onChange={(e) => handleCompanyInfoChange('logoText', e.target.value)}
               margin="normal"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Email"
-              value={footerData.companyInfo.email}
-              onChange={(e) => handleCompanyInfoChange('email', e.target.value)}
-              margin="normal"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Phone"
-              value={footerData.companyInfo.phone}
-              onChange={(e) => handleCompanyInfoChange('phone', e.target.value)}
-              margin="normal"
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Address"
-              value={footerData.companyInfo.address}
-              onChange={(e) => handleCompanyInfoChange('address', e.target.value)}
-              margin="normal"
+              helperText="Usually in format 'Conference Hub'"
             />
           </Grid>
           <Grid item xs={12}>
@@ -347,6 +354,61 @@ const FooterManager = () => {
               disabled={loading}
             >
               Save Company Info
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+
+      {/* Social Links */}
+      <Paper sx={{ p: 3, mb: 3 }}>
+        <Typography variant="h6" gutterBottom>
+          Social Media Links
+        </Typography>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Facebook URL"
+              value={footerData.socialLinks.facebook}
+              onChange={(e) => handleSocialLinksChange('facebook', e.target.value)}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Twitter URL"
+              value={footerData.socialLinks.twitter}
+              onChange={(e) => handleSocialLinksChange('twitter', e.target.value)}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="LinkedIn URL"
+              value={footerData.socialLinks.linkedin}
+              onChange={(e) => handleSocialLinksChange('linkedin', e.target.value)}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Instagram URL"
+              value={footerData.socialLinks.instagram}
+              onChange={(e) => handleSocialLinksChange('instagram', e.target.value)}
+              margin="normal"
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant="contained"
+              startIcon={<SaveIcon />}
+              onClick={handleSaveSocialLinks}
+              disabled={loading}
+            >
+              Save Social Links
             </Button>
           </Grid>
         </Grid>
@@ -391,11 +453,11 @@ const FooterManager = () => {
                 </Box>
 
                 <List>
-                  {section.links.map((link) => (
+                  {section.links && section.links.map((link) => (
                     <ListItem key={link._id}>
                       <ListItemText
-                        primary={link.title}
-                        secondary={link.url}
+                        primary={link.text}
+                        secondary={link.path}
                       />
                       <ListItemSecondaryAction>
                         <IconButton

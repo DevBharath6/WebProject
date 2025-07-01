@@ -26,12 +26,16 @@ app.use((req, res, next) => {
 // Routes
 const navbarRoutes = require('./routes/navbarRoutes');
 app.use('/api/navbar', navbarRoutes);
-const footerRoutes = require('./routes/footerRoutes');
-app.use('/api/footer', footerRoutes);
 const dashboardRoutes = require('./routes/dashboardRoutes');
 app.use('/api/dashboard', dashboardRoutes);
 const authRoutes = require('./routes/authRoutes');
 app.use('/api', authRoutes);
+const meetingRoutes = require('./routes/meetingRoutes');
+app.use('/api/meetings', meetingRoutes);
+const announcementRoutes = require('./routes/announcementRoutes');
+app.use('/api/announcements', announcementRoutes);
+const carouselRoutes = require("./routes/carouselRoutes");
+app.use("/api/carousel", carouselRoutes);
 
 // NEW: Test CORS route
 app.get('/api/test-cors', (req, res) => {
@@ -54,7 +58,7 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => {
   console.log('✅ MongoDB connected');
   // Start server only after DB connection is established
-  const PORT = process.env.PORT || 5001;
+  const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`🚀 Server started on port ${PORT}`);
   });

@@ -2,20 +2,19 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   FaBars,
-  FaHome,
   FaSitemap,
   FaCog,
   FaSignOutAlt,
   FaFileAlt,
   FaChartLine,
+  FaBullhorn,
+  FaImages,
+  FaTools,
 } from "react-icons/fa";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-
   const toggleSidebar = () => setIsOpen(!isOpen);
-
-  // Close sidebar when clicking a menu item on mobile
   const closeSidebar = () => setIsOpen(false);
 
   return (
@@ -33,7 +32,7 @@ const Sidebar = () => {
       <nav className={`sidebar ${isOpen ? "open" : ""}`}>
         <div className="sidebar-header">
           <a href="/" className="sidebar-brand" onClick={closeSidebar}>
-            <FaBars className="me-2" />
+            <FaChartLine className="me-2" />
             Dashboard
           </a>
         </div>
@@ -46,6 +45,7 @@ const Sidebar = () => {
             <FaChartLine />
             <span>Dashboard</span>
           </NavLink>
+
           <NavLink
             to="/navbar"
             className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
@@ -54,6 +54,25 @@ const Sidebar = () => {
             <FaSitemap />
             <span>Navbar Manager</span>
           </NavLink>
+
+          <NavLink
+            to="/announcements"
+            className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
+            onClick={closeSidebar}
+          >
+            <FaBullhorn />
+            <span>Announcements</span>
+          </NavLink>
+
+          <NavLink
+            to="/carousel"
+            className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
+            onClick={closeSidebar}
+          >
+            <FaImages />
+            <span>Carousel Manager</span>
+          </NavLink>
+
           <NavLink
             to="/footer"
             className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
@@ -62,14 +81,16 @@ const Sidebar = () => {
             <FaFileAlt />
             <span>Footer Manager</span>
           </NavLink>
+
           <NavLink
             to="/settings"
             className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
             onClick={closeSidebar}
           >
-            <FaCog />
+            <FaTools />
             <span>Settings</span>
           </NavLink>
+
           <a href="/logout" className="sidebar-item" onClick={closeSidebar}>
             <FaSignOutAlt />
             <span>Logout</span>
