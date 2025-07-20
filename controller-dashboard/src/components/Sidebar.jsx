@@ -56,6 +56,15 @@ const Sidebar = () => {
           </NavLink>
 
           <NavLink
+            to="/header"
+            className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
+            onClick={closeSidebar}
+          >
+            <FaSitemap />
+            <span>Header Manager</span>
+          </NavLink>
+
+          <NavLink
             to="/announcements"
             className={({ isActive }) => `sidebar-item ${isActive ? "active" : ""}`}
             onClick={closeSidebar}

@@ -36,6 +36,8 @@ const announcementRoutes = require('./routes/announcementRoutes');
 app.use('/api/announcements', announcementRoutes);
 const carouselRoutes = require("./routes/carouselRoutes");
 app.use("/api/carousel", carouselRoutes);
+const headerBrandRoutes = require("./routes/headerBrandRoutes");
+app.use("/api/header-brand", headerBrandRoutes);
 
 // NEW: Test CORS route
 app.get('/api/test-cors', (req, res) => {

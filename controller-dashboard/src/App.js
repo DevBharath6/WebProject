@@ -8,6 +8,7 @@ import FooterManager from './components/FooterManager';
 import Dashboard from './components/Dashboard';
 import Announcements from "./components/Announcement";
 import CarouselManager from './components/CarouseManager';
+import HeaderBrandManager from './components/HeaderManager';
 import './styles/dashboard.css';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
               <Route path="/announcements" element={<Announcements />} />
               <Route path="/carousel" element={<CarouselManager />} />
               <Route path="/footer" element={<FooterManager />} />
+              <Route path="/header" element={<HeaderBrandManager />} />
               <Route path="/settings" element={<div>Settings Page</div>} />
               <Route path="/logout" element={<Navigate to="/" replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />

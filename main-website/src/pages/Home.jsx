@@ -26,25 +26,25 @@ const Home = () => {
   }, []);
 
   const testimonials = [
-    {
-      name: "Sarah Johnson",
-      role: "CTO, TechCorp",
-      content: "This conference exceeded all my expectations. The networking opportunities were invaluable!",
-      image: "https://randomuser.me/api/portraits/women/44.jpg"
-    },
-    {
-      name: "Michael Chen",
-      role: "Senior Developer, InnovateTech",
-      content: "The workshops were incredibly practical. I implemented what I learned immediately.",
-      image: "https://randomuser.me/api/portraits/men/32.jpg"
-    },
-    {
-      name: "Rachel Kim",
-      role: "Product Manager, FutureSoft",
-      content: "Meeting industry leaders and like-minded professionals was the highlight of my year.",
-      image: "https://randomuser.me/api/portraits/women/68.jpg"
-    }
-  ];
+  {
+    name: "Dr. R. K. Sharma",
+    role: "Professor, Dept. of CSE, NIT Silchar",
+    content: "The conference fostered rich academic dialogue and provided a platform for groundbreaking research discussions.",
+    image: "https://randomuser.me/api/portraits/men/28.jpg"
+  },
+  {
+    name: "Sneha Reddy",
+    role: "Final Year B.Tech Student, NIT Silchar",
+    content: "An unforgettable experience! Interacting with industry experts and presenting our work boosted my confidence immensely.",
+    image: "https://randomuser.me/api/portraits/women/53.jpg"
+  },
+  {
+    name: "Aditya Malhotra",
+    role: "Software Engineer, Conference Alumni '22",
+    content: "Attending this conference during my time at NIT Silchar opened doors for my career in tech. It’s truly a game-changer.",
+    image: "https://randomuser.me/api/portraits/men/44.jpg"
+  }
+];
 
   return (
     <div className="home-page">
@@ -86,58 +86,69 @@ const Home = () => {
       <CarouselDisplay />
 
       {/* Conference Highlights Section */}
-      <section className="highlights-section py-5">
-        <Container>
-          <div className="text-center mb-5">
-            <h2 className="section-title">Conference Highlights</h2>
-            <p className="section-subtitle">
-              What to expect from this year's premier tech gathering
-            </p>
-          </div>
-          <Row className="g-4">
-            <Col md={6} lg={3}>
-              <Card className="highlight-card">
-                <Card.Body>
-                  <div className="highlight-icon"><FaRocket /></div>
-                  <Card.Title className="highlight-title">Inspirational Keynotes</Card.Title>
-                  <Card.Text>Hear from visionaries driving innovation across multiple industries.</Card.Text>
-                  <Link to="/keynotes" className="highlight-link">Learn more <FaArrowRight /></Link>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={6} lg={3}>
-              <Card className="highlight-card">
-                <Card.Body>
-                  <div className="highlight-icon"><FaChartLine /></div>
-                  <Card.Title className="highlight-title">Insightful Workshops</Card.Title>
-                  <Card.Text>Participate in hands-on sessions to sharpen your skills and knowledge.</Card.Text>
-                  <Link to="/workshops" className="highlight-link">Learn more <FaArrowRight /></Link>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={6} lg={3}>
-              <Card className="highlight-card">
-                <Card.Body>
-                  <div className="highlight-icon"><FaUsers /></div>
-                  <Card.Title className="highlight-title">Networking Opportunities</Card.Title>
-                  <Card.Text>Connect with peers, mentors, and industry experts to expand your network.</Card.Text>
-                  <Link to="/networking" className="highlight-link">Learn more <FaArrowRight /></Link>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={6} lg={3}>
-              <Card className="highlight-card">
-                <Card.Body>
-                  <div className="highlight-icon"><FaCog /></div>
-                  <Card.Title className="highlight-title">Exhibitor Showcase</Card.Title>
-                  <Card.Text>Explore the latest products and services from leading technology providers.</Card.Text>
-                  <Link to="/exhibitors" className="highlight-link">Learn more <FaArrowRight /></Link>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
-      </section>
+<section className="highlights-section py-5">
+  <Container>
+    <div className="text-center mb-5">
+      <h2 className="section-title">Conference Highlights</h2>
+      <p className="section-subtitle">
+        Experience the fusion of academia, research, and cutting-edge tech at NIT Silchar
+      </p>
+    </div>
+    <Row className="g-4">
+      <Col md={6} lg={3}>
+        <Card className="highlight-card">
+          <Card.Body>
+            <div className="highlight-icon"><FaRocket /></div>
+            <Card.Title className="highlight-title">Distinguished Keynotes</Card.Title>
+            <Card.Text>
+              Engage with national and international experts driving future-ready innovations.
+            </Card.Text>
+            <Link to="/keynotes" className="highlight-link">Learn more <FaArrowRight /></Link>
+          </Card.Body>
+        </Card>
+      </Col>
+
+      <Col md={6} lg={3}>
+        <Card className="highlight-card">
+          <Card.Body>
+            <div className="highlight-icon"><FaChartLine /></div>
+            <Card.Title className="highlight-title">Technical Workshops</Card.Title>
+            <Card.Text>
+              Gain hands-on exposure to tools and technologies shaping tomorrow’s world.
+            </Card.Text>
+            <Link to="/workshops" className="highlight-link">Learn more <FaArrowRight /></Link>
+          </Card.Body>
+        </Card>
+      </Col>
+
+      <Col md={6} lg={3}>
+        <Card className="highlight-card">
+          <Card.Body>
+            <div className="highlight-icon"><FaUsers /></div>
+            <Card.Title className="highlight-title">Academic Networking</Card.Title>
+            <Card.Text>
+              Collaborate with researchers, scholars, and professionals from across the globe.
+            </Card.Text>
+            <Link to="/networking" className="highlight-link">Learn more <FaArrowRight /></Link>
+          </Card.Body>
+        </Card>
+      </Col>
+
+      <Col md={6} lg={3}>
+        <Card className="highlight-card">
+          <Card.Body>
+            <div className="highlight-icon"><FaCog /></div>
+            <Card.Title className="highlight-title">Innovation Expo</Card.Title>
+            <Card.Text>
+              Discover student projects, research prototypes, and tech demos at our exhibition.
+            </Card.Text>
+            <Link to="/exhibitors" className="highlight-link">Learn more <FaArrowRight /></Link>
+          </Card.Body>
+        </Card>
+      </Col>
+    </Row>
+  </Container>
+</section>
 
       {/* Testimonials */}
       <section className="testimonials-section py-5">
